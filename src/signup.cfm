@@ -2,21 +2,22 @@
   Created by Aisha on 11.04.2018.
 --->
 <!---server side validation--->
+<cfset isUserLogin = false/>
 <cfset aErrorMessage = arrayNew(1)/>
 <cfif structKeyExists(form,'signup')>
 <!---validate login and password--->
-    <cfquery datasource="error_register" name="login_validation">
-        SELECT COUNT(*) as count FROM `systemuser` WHERE login = "#form.login#"
-    </cfquery>
-    <cfif #login_validation.count# NEQ 0>
-        <cfset arrayAppend(aErrorMessage,"Такой логин существует!")/>
-    </cfif>
-    <cfif arrayIsEmpty(aErrorMessage)>
-        <cfquery datasource="error_register">
-            INSERT INTO `systemuser`(`login`, `firstname`, `lastname`, `password`) VALUES ('#form.login#','#form.firstname#','#form.lastname#','#form.password#')
-        </cfquery>
 
-    </cfif>
+        <cfset userService = createObject("component", 'test.src.components.userService')/>
+        <cfset aErrorMessage =  userService.userValidation(form.login,form.firstname,form.lastname, form.password)/>
+        <cfif arrayIsEmpty(aErrorMessage)>
+            <cfset isUserLogin =  userService.UserSignUp(form.login,form.firstname,form.lastname, form.password)/>
+        </cfif>
+        <cfif isUserLogin EQ true >
+            <cfset authenticationService = createObject("component", 'test.src.components.authentificationService')/>
+            <cfset isUserLogin =  authenticationService.doLogin(form.login, form.password)/>
+        </cfif>
+
+
 </cfif>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
@@ -35,28 +36,35 @@
 <body>
 
 <div class="container">
-<cfif isDefined('aErrorMessage') AND NOT arrayIsEmpty(aErrorMessage) >
-    <cfoutput>
-        <cfloop array="#aErrorMessage#" index="message">
-                <script>
-                alert("#MESSAGE#");
-                </script>
-        </cfloop>
-    </cfoutput>
-</cfif>
-
-<cfform class="form-signin"  >
-        <h1 class="h3 mb-3 font-weight-normal">Регистрация</h1>
-        <label for="inputfirstname" class="sr-only">Имя</label>
-    <cfinput type="text" id="inputfirstname"  class="form-control" name="firstname" placeholder="Имя" required="true" message="Введите имя!">
-        <label for="inputlastname" class="sr-only">Фамилия</label>
-    <cfinput type="text" id="inputlastname" class="form-control" name="lastname" placeholder="Фамилия" required="true" message="Введите фамилию!">
-        <label for="inputlogin" class="sr-only">Введите логин</label>
-    <cfinput type="text" id="inputlogin"  class="form-control" name="login" placeholder="Логин" required="true" message="Введите логин!">
-        <label for="inputpassword" class="sr-only">Введите пароль</label>
-    <cfinput type="password" id="inputpassword" class="form-control" name="password" placeholder="Пароль" required="true" message="Введите пароль!">
-    <cfinput type="submit" class="btn btn-lg btn-primary btn-block" name="signup" value="Зарегистрироваться">
-</cfform>
+    <cfif structKeyExists(variables, 'aErrorMessage') AND NOT arrayIsEmpty(aErrorMessage)>
+        <cfoutput>
+            <cfloop array="#aErrorMessage#" index="message">
+                    <script>
+                    alert("#MESSAGE#");
+                    </script>
+            </cfloop>
+        </cfoutput>
+        <cfset arrayClear(aErrorMessage)/>
+    </cfif>
+    <cfif structKeyExists(session, 'stLoggedInUser')>
+        <script>
+            alert('Успешно');
+        </script>
+        <cflocation url="/test/src/userUpdate.cfm" />
+    <cfelse>
+        <cfform class="form-signin"  >
+                <h1 class="h3 mb-3 font-weight-normal">Регистрация</h1>
+                <label for="inputfirstname" class="sr-only">Имя</label>
+            <cfinput type="text" id="inputfirstname"  class="form-control" name="firstname" placeholder="Имя" required="true" message="Введите имя!">
+                <label for="inputlastname" class="sr-only">Фамилия</label>
+            <cfinput type="text" id="inputlastname" class="form-control" name="lastname" placeholder="Фамилия" required="true" message="Введите фамилию!">
+                <label for="inputlogin" class="sr-only">Введите логин</label>
+            <cfinput type="text" id="inputlogin"  class="form-control" name="login" placeholder="Логин" required="true" message="Введите логин!">
+                <label for="inputpassword" class="sr-only">Введите пароль</label>
+            <cfinput type="password" id="inputpassword" class="form-control" name="password" placeholder="Пароль" required="true" message="Введите пароль!">
+            <cfinput type="submit" class="btn btn-lg btn-primary btn-block" name="signup" value="Зарегистрироваться">
+        </cfform>
+    </cfif>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>

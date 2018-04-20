@@ -2,78 +2,19 @@
   Created by Aisha on 11.04.2018.
 --->
 <!---server side validation--->
-<cfset aErrorMessage = arrayNew(1)/>
-<cfif structKeyExists(form,'add')>
-    <cfset form.enter_date = DateFormat(Now(),"yyyy-mm-dd hh:mm:ss")/>
-    <cfset form.user_id = "1"/>
 
-    <cfif arrayIsEmpty(aErrorMessage)>
-        <cfquery datasource="error_register">
-            DROP TRIGGER IF EXISTS `new_history`
-        </cfquery>
-        <cfquery datasource="error_register">
-           CREATE TRIGGER new_history AFTER INSERT ON error
-           FOR EACH ROW
-                BEGIN
-                 INSERT INTO `errorhistory`(`data`, `status`, `comment`, `user_id`, `error_id`)
-                 VALUES ('#form.enter_date#','#form.status#','#form.comment#','#form.user_id#',NEW.id);
-                END
-        </cfquery>
-        <cfquery datasource="error_register">
-           INSERT INTO `error`(`short_descr`, `full_descr`, `urgency`, `criticality`)
-           VALUES ('#form.short_descr#','#form.detailed_descr#','#form.urgency#','#form.criticality#')
-        </cfquery>
+<cfset errorService = createObject("component", 'test.src.components.errorService')/>
+<cfif structKeyExists(form,'add')>
+    <cfset error_Service =  errorService.error_Reg(form.status, form.comment, form.short_descr, form.detailed_descr, form.urgency, form.criticality)/>
+    <cfif error_Service EQ true>
         <script>
             alert("Успешно!");
         </script>
     </cfif>
+
 </cfif>
-<!DOCTYPE html>
-<!-- saved from url=(0053)https://getbootstrap.com/docs/4.0/examples/jumbotron/ -->
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="icon" href="https://getbootstrap.com/favicon.ico">
-
-    <title>Jumbotron Template for Bootstrap</title>
-
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
-    <!-- Custom styles for this template -->
-    <link href="https://getbootstrap.com/docs/4.0/examples/jumbotron/jumbotron.css" rel="stylesheet">
-</head>
-
-<body>
-
-<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-    <a class="navbar-brand" href="">ER</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-        <ul class="navbar-nav mr-auto">
-            <li class="nav-item ">
-                <a class="nav-link" href="errorList.cfm">Список ошибок</a>
-            </li>
-            <li class="nav-item active">
-                <a class="nav-link" href="errorReg.cfm">Добавить ошибки<span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="userUpdate.cfm ">Редактирование пользователя</a>
-            </li>
-
-
-        </ul>
-        <form class="form-inline my-2 my-lg-0">
-            <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-        </form>
-    </div>
-</nav>
+<cf_head>
+<cf_navbar>
 
 <main role="main">
 
@@ -138,18 +79,9 @@
                     </div>
                     <a><cfinput  type="submit" class="btn btn-primary" name="add" value="Добавить"></a>
             </cfform>
-
-
-
         </div>
     </div>
-
-
-
 </main>
+<cf_footer>
 
-<footer class="container">
-    <p>© Company 2017-2018</p>
-</footer>
-
-</body></html>
+</cf_head>

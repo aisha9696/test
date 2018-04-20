@@ -6,93 +6,31 @@
   Created by Aisha on 11.04.2018.
 --->
 <!---server side validation--->
-<cfquery datasource="error_register" name="errorToUpdate">
-     SELECT `short_descr`, `full_descr`, eh.status as stat, `urgency`, `criticality`, eh.comment as comment
-     FROM `error` as er
-     JOIN
-        (SELECT status, error_id,comment
-        FROM errorhistory group by error_id )
-     as eh on er.id = 5 and eh.error_id =5
-</cfquery>
-<cfquery  datasource="error_register" name="selectHistory">
-    SELECT `data`, `status`, `comment`, su.whole_name as fullname
-    FROM `errorhistory`
-    INNER JOIN
-        (SELECT id, CONCAT_WS(" ", `firstname`, `lastname`)AS `whole_name` FROM `systemuser`)
-    as su on su.id = user_id and error_id = 5
-</cfquery>
-<cfset aErrorMessage = arrayNew(1)/>
-<cfif structKeyExists(form,'update')>
-    <cfset form.enter_date = DateFormat(Now(),"yyyy-mm-dd hh:mm:ss")/>
-    <cfset form.user_id = "1"/>
+<cfset errorService = createObject("component", 'test.src.components.errorService')/>
+<cfif isDefined('url.error_id')>
+    <cfset errorToUpdate =  errorService.selectErrorToUpdate(url.error_id)/>
+    <cfset historyList =  errorService.selectHistory(url.error_id)/>
 
-    <cfif arrayIsEmpty(aErrorMessage)>
-        <cfquery datasource="error_register">
-            DROP TRIGGER IF EXISTS `new_history`
-        </cfquery>
-        <cfquery datasource="error_register">
-           CREATE TRIGGER new_history AFTER UPDATE ON error
-           FOR EACH ROW
-                BEGIN
-                 INSERT INTO `errorhistory`(`data`, `status`, `comment`, `user_id`, `error_id`)
-                 VALUES ('#form.enter_date#','#form.status#','#form.comment#','#form.user_id#',NEW.id);
-                END
-        </cfquery>
-        <cfquery datasource="error_register">
-           UPDATE `error` SET `short_descr`='#form.short_descr#',`full_descr`='#form.detailed_descr#',`urgency`='#form.urgency#',`criticality`='#form.criticality#'
-            WHERE `id`=5
-        </cfquery>
+    <cfif structKeyExists(form,'update')>
+        <cfset error_update =  errorService.error_Update(url.error_id, form.status, form.comment, form.short_descr, form.detailed_descr, form.urgency, form.criticality)/>
+        <cfif error_update EQ true>
+            <script>
+                alert("Успешно!");
+            </script>
+        </cfif>
+    </cfif>
+
+    <cfset historyToDelete = false/>
+    <cfif isDefined('url.history_id')>
+        <cfset historyToDelete = errorService.deleteHistory(url.history_id)/>
+    </cfif>
+    <cfif historyToDelete EQ true>
         <script>
-            alert("Успешно!");
+            alert("Успешно удалено!");
         </script>
     </cfif>
-</cfif>
-<!DOCTYPE html>
-<!-- saved from url=(0053)https://getbootstrap.com/docs/4.0/examples/jumbotron/ -->
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="icon" href="https://getbootstrap.com/favicon.ico">
-
-    <title>Jumbotron Template for Bootstrap</title>
-
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
-    <!-- Custom styles for this template -->
-    <link href="https://getbootstrap.com/docs/4.0/examples/jumbotron/jumbotron.css" rel="stylesheet">
-</head>
-
-<body>
-
-<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-    <a class="navbar-brand" href="">ER</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-        <ul class="navbar-nav mr-auto">
-            <li class="nav-item ">
-                <a class="nav-link" href="errorList.cfm">Список ошибок</a>
-            </li>
-            <li class="nav-item ">
-                <a class="nav-link" href="errorReg.cfm">Добавить ошибки</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="userUpdate.cfm ">Редактирование пользователя</a>
-            </li>
-
-
-        </ul>
-        <form class="form-inline my-2 my-lg-0">
-            <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-        </form>
-    </div>
-</nav>
+<cf_head>
+<cf_navbar>
 
 <main role="main">
 
@@ -174,14 +112,14 @@
                     </thead>
                     <tbody>
                         <cfset count = 1/>
-                        <cfoutput query="selectHistory">
+                        <cfoutput query="historyList">
                             <tr>
                             <th scope="row">#count++#</th>
                             <td>#data#</td>
                             <td>#fullname#</td>
                             <td>#status#</td>
                             <td>#comment#</td>
-                            <td><button type="button" class="btn btn-primary">Удалить</button></td>
+                            <td><a href="errorUpdate.cfm?error_id=#url.error_id#&history_id=#id#" class="btn btn-primary">Удалить</a></td>
                         </tr>
                         </cfoutput>
                     </tbody>
@@ -199,8 +137,7 @@
 
 </main>
 
-<footer class="container">
-    <p>© Company 2017-2018</p>
-</footer>
+<cf_footer>
 
-</body></html>
+</cf_head>
+</cfif>
