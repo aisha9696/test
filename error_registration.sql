@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1
--- Время создания: Апр 16 2018 г., 23:03
+-- Время создания: Апр 20 2018 г., 03:21
 -- Версия сервера: 10.1.30-MariaDB
 -- Версия PHP: 7.2.2
 
@@ -45,7 +45,7 @@ INSERT INTO `error` (`id`, `short_descr`, `full_descr`, `urgency`, `criticality`
 (2, 'hhkh', 'kjhkh', '??????', '?????????'),
 (3, 'zzxc', 'zxc', '????? ??????', '?????????'),
 (5, 'CVsdfsd', '46546', 'Choose...', '??????'),
-(6, 'ilu', 'ADEMA I LOVE YOU SOOOOOOO MUCH', '?????? ????????', '???????????');
+(12, 'ads', 'asd', '????? ??????', '?????????');
 
 --
 -- Триггеры `error`
@@ -53,7 +53,7 @@ INSERT INTO `error` (`id`, `short_descr`, `full_descr`, `urgency`, `criticality`
 DELIMITER $$
 CREATE TRIGGER `new_history` AFTER UPDATE ON `error` FOR EACH ROW BEGIN
                  INSERT INTO `errorhistory`(`data`, `status`, `comment`, `user_id`, `error_id`)
-                 VALUES ('2018-04-16 11:04:04','?????','XCVdfsdfdsf','1',NEW.id);
+                 VALUES ('2018-04-20 03:04:24','????????','asd','3',NEW.id);
                 END
 $$
 DELIMITER ;
@@ -78,14 +78,9 @@ CREATE TABLE `errorhistory` (
 --
 
 INSERT INTO `errorhistory` (`id`, `data`, `status`, `comment`, `user_id`, `error_id`) VALUES
-(2, '2018-04-16', '?????', 'XCV', 1, 5),
-(3, '2018-04-16', '????????', 'XOXO', 1, 6),
-(4, '2018-02-12', 'OK', 'OK', 1, 5),
-(5, '2018-04-16', '????????', 'XCV', 1, 5),
-(6, '2018-04-16', '????????', 'XCV', 1, 5),
-(7, '2018-04-16', 'Choose...', 'XCV', 1, 5),
-(8, '2018-04-16', '????????', 'XCVsds', 1, 5),
-(9, '2018-04-16', '?????', 'XCVdfsdfdsf', 1, 5);
+(22, '2018-04-20', '?????', 'asd', 3, 12),
+(23, '2018-04-20', '?????', 'asd', 3, 12),
+(24, '2018-04-20', '????????', 'asd', 3, 12);
 
 -- --------------------------------------------------------
 
@@ -108,7 +103,10 @@ CREATE TABLE `systemuser` (
 INSERT INTO `systemuser` (`id`, `login`, `firstname`, `lastname`, `password`) VALUES
 (1, '123', '????????', '????', '789'),
 (2, '456', '????? ', '??????????', '456'),
-(3, '151', 'Aisha', 'Abylgazy', '7877');
+(3, '151', 'Aisha', 'Abylgazy', '7877'),
+(4, '151Ai', 'Kate', 'Simpsom', '456456'),
+(5, '789', 'Adema', 'Tursunkozha', '456789'),
+(6, 'Gul1234', 'Gulshat', 'Zhylkibaeva', '123');
 
 --
 -- Индексы сохранённых таблиц
@@ -142,19 +140,19 @@ ALTER TABLE `systemuser`
 -- AUTO_INCREMENT для таблицы `error`
 --
 ALTER TABLE `error`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT для таблицы `errorhistory`
 --
 ALTER TABLE `errorhistory`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT для таблицы `systemuser`
 --
 ALTER TABLE `systemuser`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Ограничения внешнего ключа сохраненных таблиц
